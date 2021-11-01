@@ -3,6 +3,8 @@ class RecipeCard extends HTMLElement {
     // Part 1 Expose - TODO
 
     // You'll want to attach the shadow DOM here
+    super();
+    var shadowDOM = this.attachShadow({mode: 'open'});
   }
 
   set data(data) {
@@ -85,6 +87,8 @@ class RecipeCard extends HTMLElement {
     `;
     styleElem.innerHTML = styles;
 
+    this.shadowRoot.append(styleElem);
+
     // Here's the root element that you'll want to attach all of your other elements to
     const card = document.createElement('article');
 
@@ -100,6 +104,85 @@ class RecipeCard extends HTMLElement {
     // created in the constructor()
 
     // Part 1 Expose - TODO
+
+    // img
+
+    const img = document.createElement('img');
+    let thumbUrl = searchForKey(data,'thumbnailUrl');
+    let headline = searchForKey(data,'headline');
+    img.setAttribute('src',thumbUrl);
+    img.setAttribute('alt',headline);
+    
+
+    card.appendChild(img);
+
+    // <p class='title' >
+    const p1 = document.createElement('p');
+    p1.classList.add('title');
+
+
+    let url = getUrl(data);
+    const a = document.createElement('a')
+    a.setAttribute('href',url);
+    a.textContent = headline;
+    p1.append(a);
+
+    console.log(p1);
+    card.appendChild(p1);
+
+    // <p class='organization'>
+    const p2 = document.createElement('p');
+    p2.classList.add('organization');
+    p2.textContent = getOrganization(data);
+
+    card.appendChild(p2);
+
+    // big div
+    const div = document.createElement('div');
+    div.classList.add('rating');
+
+    const span = document.createElement('span');
+    const time = document.createElement('time');
+    let total = searchForKey(data,'totalTime');
+    time.textContent = convertTime(total);
+    const p3 = document.createElement('p');
+    p3.classList.add('ingredients');
+
+    let ingredientList = searchForKey(data, 'recipeIngredient');
+    p3.textContent = createIngredientList(ingredientList);
+
+    let rating = searchForKey(data, 'ratingValue');
+    console.log("rating");
+    console.log(rating);
+
+    if(rating) {
+      span.textContent = rating;
+
+      let img2 = document.createElement('img');
+      let span2 = document.createElement('span');
+      let displayRating = Math.round(rating);
+      img2.setAttribute('src', `assets/images/icons/${displayRating}-star.svg`);
+      img2.setAttribute('alt', `${displayRating} stars`);
+
+      let numReviews = searchForKey(data, 'ratingCount');
+
+      span2.textContent = `(${numReviews})`;
+      console.log("rating");
+      console.log(rating);
+      div.appendChild(span);
+      div.appendChild(img2);
+      div.appendChild(span2);
+    }
+    else {
+      span.textContent = 'No Reviews';
+      div.appendChild(span);
+    }  
+    card.appendChild(div);
+    card.appendChild(time);
+    card.appendChild(p3);      
+    
+    this.shadowRoot.append(card);
+
   }
 }
 
@@ -227,3 +310,5 @@ function createIngredientList(ingredientArr) {
 // Define the Class so you can use it as a custom element.
 // This is critical, leave this here and don't touch it
 customElements.define('recipe-card', RecipeCard);
+
+

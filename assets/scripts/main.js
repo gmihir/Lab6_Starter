@@ -5,7 +5,10 @@
 const recipes = [
   'https://introweb.tech/assets/json/ghostCookies.json',
   'https://introweb.tech/assets/json/birthdayCake.json',
-  'https://introweb.tech/assets/json/chocolateChip.json'
+  'https://introweb.tech/assets/json/chocolateChip.json',
+  'assets/recipes/noodles.json',
+  'assets/recipes/pasta.json',
+  'assets/recipes/cake.json'
 ];
 
 // Once all of the recipes that were specified above have been fetched, their
@@ -19,6 +22,7 @@ window.addEventListener('DOMContentLoaded', init);
 async function init() {
   // fetch the recipes and wait for them to load
   let fetchSuccessful = await fetchRecipes();
+
   // if they didn't successfully load, quit the function
   if (!fetchSuccessful) {
     console.log('Recipe fetch unsuccessful');
@@ -43,6 +47,20 @@ async function fetchRecipes() {
     // in the recipes folder and fetch them from there. You'll need to add their paths to the recipes array.
 
     // Part 1 Expose - TODO
+
+    recipes.forEach((recipeUrl) => {
+      fetch(recipeUrl)
+      .then(res => res.json())
+      .then(data => {
+        recipeData[recipeUrl] = data;
+      }).catch(err => {
+        reject(false);
+      }).then(() => {
+        if (Object.keys(recipeData).length === recipes.length) {
+          resolve(true);
+        }
+      })
+    });
   });
 }
 
@@ -54,6 +72,19 @@ function createRecipeCards() {
   // show any others you've added when the user clicks on the "Show more" button.
 
   // Part 1 Expose - TODO
+
+  var mainElement = document.getElementsByTagName('main')[0];
+
+  for(let i = 0 ; i < 6 ; i++) {
+    const newCard = document.createElement('recipe-card');
+    console.log(recipes[i]);
+    newCard.data = recipeData[recipes[i]];
+
+    if(i >= 3) {
+      newCard.style.display = 'none';
+    }
+    mainElement.appendChild(newCard);
+  }
 }
 
 function bindShowMore() {
@@ -65,4 +96,30 @@ function bindShowMore() {
   // in the recipeData object where you stored them/
 
   // Part 2 Explore - TODO
+  let showMoreButton = document.querySelector("#button-wrapper > button");
+  let allRecipes = document.getElementsByTagName('recipe-card');
+
+  showMoreButton.addEventListener('click', () => {
+    console.log("clicked")
+
+    if(showMoreButton.textContent === "Show more") {
+      console.log("show more");
+      showMoreButton.textContent = "Show less";
+      
+      // show the recipes
+      for(let i = 3 ; i < 6 ; i++) {
+        allRecipes[i].style.display = 'block';
+      }
+
+    }
+    else {
+      console.log("Show less");
+      showMoreButton.textContent = "Show more";
+
+      // remove recipes
+      for (let i = 3; i < 6; i++) {
+        allRecipes[i].style.display = 'none';
+      }
+    }
+  });
 }
